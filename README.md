@@ -25,7 +25,7 @@ A simple example that demonstrates most of the features:
 
 	// Check that an unencrypted password matches one that has
 	// previously been hashed
-	if (BCrypt.check(candidate, hashed))
+	if (BCrypt.verify(candidate, hashed))
 		System.out.println("It matches");
 	else
 		System.out.println("It does not match");

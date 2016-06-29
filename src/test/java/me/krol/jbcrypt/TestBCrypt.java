@@ -135,19 +135,19 @@ public class TestBCrypt extends TestCase {
     }
 
     /**
-     * Test method for 'BCrypt.check(String, String)'
+     * Test method for 'BCrypt.verify(String, String)'
      * expecting success
      */
     public void testCheckSuccess() {
         for (int i = 0; i < test_vectors.length; i++) {
             String plain = test_vectors[i][0];
             String expected = test_vectors[i][2];
-            assertTrue(BCrypt.check(plain, expected));
+            assertTrue(BCrypt.verify(plain, expected));
         }
     }
 
     /**
-     * Test method for 'BCrypt.check(String, String)'
+     * Test method for 'BCrypt.verify(String, String)'
      * expecting failure
      */
     public void testCheckFailure() {
@@ -155,7 +155,7 @@ public class TestBCrypt extends TestCase {
             int broken_index = (i + 4) % test_vectors.length;
             String plain = test_vectors[i][0];
             String expected = test_vectors[broken_index][2];
-            assertFalse(BCrypt.check(plain, expected));
+            assertFalse(BCrypt.verify(plain, expected));
         }
     }
 
@@ -167,17 +167,17 @@ public class TestBCrypt extends TestCase {
         String pw2 = "????????";
 
         String h1 = BCrypt.hash(pw1, BCrypt.generateSalt());
-        assertFalse(BCrypt.check(pw2, h1));
+        assertFalse(BCrypt.verify(pw2, h1));
 
         String h2 = BCrypt.hash(pw2, BCrypt.generateSalt());
-        assertFalse(BCrypt.check(pw1, h2));
+        assertFalse(BCrypt.verify(pw1, h2));
     }
 
     public void testCheckYMinor() {
         for (int i = 0; i < examplePasswords.length; i++) {
             String password = examplePasswords[i][0];
             String hash = examplePasswords[i][1];
-            assertTrue(BCrypt.check(password, hash));
+            assertTrue(BCrypt.verify(password, hash));
         }
     }
 

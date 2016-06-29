@@ -35,11 +35,11 @@ import java.security.SecureRandom;
  * String pw_hash = BCrypt.hash(plain_password, BCrypt.generateSalt()); <br />
  * </code>
  * <p>
- * To check whether a plaintext password matches one that has been
- * hashed previously, use the check method:
+ * To verify whether a plaintext password matches one that has been
+ * hashed previously, use the verify method:
  * <p>
  * <code>
- * if (BCrypt.check(candidate_password, stored_hash))<br />
+ * if (BCrypt.verify(candidate_password, stored_hash))<br />
  * &nbsp;&nbsp;&nbsp;&nbsp;System.out.println("It matches");<br />
  * else<br />
  * &nbsp;&nbsp;&nbsp;&nbsp;System.out.println("It does not match");<br />
@@ -490,7 +490,7 @@ public class BCrypt {
      * @param hashed   the previously-hashed password
      * @return true if the passwords match, false otherwise
      */
-    public static boolean check(String password, String hashed) {
+    public static boolean verify(String password, String hashed) {
         byte hashed_bytes[];
         byte try_bytes[];
         try {
@@ -506,6 +506,71 @@ public class BCrypt {
         for (int i = 0; i < try_bytes.length; i++)
             ret |= hashed_bytes[i] ^ try_bytes[i];
         return ret == 0;
+    }
+
+    /**
+     * Hash a password using the OpenBSD bcrypt scheme
+     *
+     * @param password the password to hash
+     * @param salt     the salt to hash with (perhaps generated
+     *                 using BCrypt.generateSalt)
+     * @return the hashed password
+     * @deprecated
+     */
+    public static String hashpw(String password, String salt) {
+        return hash(password, salt);
+    }
+
+    /**
+     * Generate a salt for use with the BCrypt.hashpw() method
+     *
+     * @param log_rounds the log2 of the number of rounds of
+     *                   hashing to apply - the work factor therefore increases as
+     *                   2**log_rounds.
+     * @param random     an instance of SecureRandom to use
+     * @return an encoded salt value
+     * @deprecated
+     */
+    public static String gensalt(int log_rounds, SecureRandom random) {
+        return generateSalt(log_rounds, random);
+    }
+
+    /**
+     * Generate a salt for use with the BCrypt.hashpw() method
+     *
+     * @param log_rounds the log2 of the number of rounds of
+     *                   hashing to apply - the work factor therefore increases as
+     *                   2**log_rounds.
+     * @return an encoded salt value
+     * @deprecated
+     */
+    public static String gensalt(int log_rounds) {
+        return generateSalt(log_rounds);
+    }
+
+    /**
+     * Generate a salt for use with the BCrypt.hashpw() method,
+     * selecting a reasonable default for the number of hashing
+     * rounds to apply
+     *
+     * @return an encoded salt value
+     * @deprecated
+     */
+    public static String gensalt() {
+        return generateSalt();
+    }
+
+    /**
+     * Check that a plaintext password matches a previously hashed
+     * one
+     *
+     * @param plaintext the plaintext password to verify
+     * @param hashed    the previously-hashed password
+     * @return true if the passwords match, false otherwise
+     * @deprecated
+     */
+    public static boolean checkpw(String plaintext, String hashed) {
+        return verify(plaintext, hashed);
     }
 
     /**
@@ -618,8 +683,8 @@ public class BCrypt {
      * @param cdata      the plaintext to encrypt
      * @return an array containing the binary hashed password
      */
-    public byte[] cryptRaw(byte password[], byte salt[], int log_rounds,
-                           int cdata[]) {
+    private byte[] cryptRaw(byte password[], byte salt[], int log_rounds,
+                            int cdata[]) {
         int rounds, i, j;
         int clen = cdata.length;
         byte ret[];
